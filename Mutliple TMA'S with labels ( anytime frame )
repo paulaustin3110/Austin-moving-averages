@@ -1,0 +1,45 @@
+//@version=5
+indicator(title="Multi TMA with labels (Any timeframe)", shorttitle="Multi TMA", overlay=true)
+
+get_timeframe_title(simple string tf = "") =>
+    chartTf = timeframe.isminutes == true and timeframe.multiplier > 59 ? (timeframe.multiplier/60 % 2 == 0 ? str.tostring(timeframe.multiplier/60)+"h" : str.tostring(timeframe.multiplier)+"m") : timeframe.isminutes == true ? str.tostring(timeframe.multiplier)+"m" : timeframe.period
+    result = tf == "" ? "" : request.security(syminfo.tickerid, tf, chartTf)
+
+distance = input(2, "Label Distance")
+show_prices = input.bool(true, "Show price labels")
+
+// Function to calculate TMA
+tma(src, length) =>
+    sma1 = ta.sma(src, length)
+    ta.sma(sma1, length)
+
+// Input settings for each TMA
+tma1_enable = input.bool(true, "Enable TMA 1", group = "TMA Options")
+tma1_timeframe = input.timeframe("", "TMA 1 Timeframe", group = "TMA Options")
+tma1_len = input.int(20, minval=1, title="TMA 1 Length", group = "TMA Options")
+tma1_out = tma(close, tma1_len)
+tma1_color_input = input(color.new(#A5D6A7, 20), title="TMA 1 Color", group = "TMA Options") 
+tma1_color = tma1_enable ? tma1_color_input : na
+
+tma2_enable = input.bool(true, "Enable TMA 2", group = "TMA Options")
+tma2_timeframe = input.timeframe("", "TMA 2 Timeframe", group = "TMA Options")
+tma2_len = input.int(50, minval=1, title="TMA 2 Length", group = "TMA Options")
+tma2_out = tma(close, tma2_len)
+tma2_color_input = input(color.new(#F2AF29, 20), title="TMA 2 Color", group = "TMA Options") 
+tma2_color = tma2_enable ? tma2_color_input : na
+
+tma3_enable = input.bool(true, "Enable TMA 3", group = "TMA Options")
+tma3_timeframe = input.timeframe("", "TMA 3 Timeframe", group = "TMA Options")
+tma3_len = input.int(200, minval=1, title="TMA 3 Length", group = "TMA Options")
+tma3_out = tma(close, tma3_len)
+tma3_color_input = input(color.new(#725AC1, 20), title="TMA 3 Color", group = "TMA Options") 
+tma3_color = tma3_enable ? tma3_color_input : na
+
+// Add more TMAs here as necessary (similar to TMA1, TMA2, TMA3)
+
+// Plot TMAs on the chart
+plot(tma1_enable ? tma1_out : na, title="TMA 1", color=tma1_color, linewidth=2, style=plot.style_line)
+plot(tma2_enable ? tma2_out : na, title="TMA 2", color=tma2_color, linewidth=2, style=plot.style_line)
+plot(tma3_enable ? tma3_out : na, title="TMA 3", color=tma3_color, linewidth=2, style=plot.style_line)
+
+// Similar to how you were managing EMA labels, update the labels for TMAs
